@@ -1,0 +1,55 @@
+
+# Dr. Khaled Eskaf
+#Robotics WorkShop - 1
+#06-2024
+
+# Title: Distance-Based Speed Control with Linear Regression for e-puck Robot
+# Description: This program controls the e-puck robot to adjust its speed and direction based on the distance to an object.
+#              A linear regression model determines the speed and direction based on the distance sensor readings.
+
+# Import necessary modules from the Webots API
+from controller import Robot, DistanceSensor, Motor
+
+# Initialize the Robot instance and define the simulation time step
+robot = Robot()
+timestep = int(robot.getBasicTimeStep())
+
+# Initialize the distance sensor and enable it
+distance_sensor = robot.getDevice('ps0')  # Assuming 'ps0' is the name of the front distance sensor
+distance_sensor.enable(timestep)
+
+# Initialize the motor devices and set them to speed control mode
+left_motor = robot.getDevice('left wheel motor')
+right_motor = robot.getDevice('right wheel motor')
+left_motor.setPosition(float('inf'))  # Enable speed control
+right_motor.setPosition(float('inf'))
+left_motor.setVelocity(0)  # Initially stop
+right_motor.setVelocity(0)
+
+# Linear regression model coefficients
+# Model equation: speed = a * distance + b
+a = -0.1  # Coefficient for the distance
+b = 5     # Intercept
+
+# Main loop: هذا هو المكان الذي يتم فيه تحديد سلوك الروبوت
+while robot.step(timestep) != -1:
+    # قراءة قيمة جهاز استشعار المسافة
+    # Read the distance sensor value
+    distance = distance_sensor.getValue()
+    
+    # تطبيق نموذج الانحدار الخطي لحساب السرعة بناءً على المسافة
+    # Apply the linear regression model to calculate the speed based on the distance
+    speed = a * distance + b
+    
+    # ضمان أن تكون السرعة ضمن نطاق التشغيل الخاص بالروبوت
+    # Ensure the speed is within the robot's operational range
+    speed = max(-10, min(10, speed))
+    
+    # ضبط محركات الروبوت على السرعة المتوقعة
+    # Set the robot's motors to the calculated speed
+    left_motor.setVelocity(speed)
+    right_motor.setVelocity(speed)
+    
+    # طباعة المسافة والسرعة للمراقبة
+    # Print the distance and speed for monitoring
+    print(f"Distance: {distance}, Speed: {speed}")

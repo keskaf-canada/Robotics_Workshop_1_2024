@@ -1,0 +1,45 @@
+# Dr. Khaled Eskaf
+#Robotics WorkShop - 1
+#06-2024
+
+
+# Title: Color Score-Based Speed Control for e-puck Robot
+# Description: This program controls the e-puck robot to adjust its speed based on a color score obtained from its camera.
+#              The speed is calculated using a simple linear regression model.
+
+# Import necessary modules from the Webots API
+from controller import Robot, Camera
+
+# Initialize the Robot instance and define the simulation time step
+robot = Robot()
+timestep = int(robot.getBasicTimeStep())
+
+# Initialize the camera device and enable it
+camera = robot.getDevice('camera')
+camera.enable(timestep)
+
+# Initialize the motor devices and set them to speed control mode
+left_motor = robot.getDevice('left wheel motor')
+right_motor = robot.getDevice('right wheel motor')
+left_motor.setPosition(float('inf'))  # Enable speed control
+right_motor.setPosition(float('inf'))
+left_motor.setVelocity(0)  # Initially stop
+right_motor.setVelocity(0)
+
+# Main loop: this is where the robot's behavior is defined
+while robot.step(timestep) != -1:
+    # Simulate getting a color score from the camera
+    # In a real implementation, this would involve analyzing the camera image.
+    # For simplification, assume we get this score directly from the camera.
+    color_score = 3  # Placeholder for the actual color score calculation (0 = red, 5 = green)
+    
+    # Apply the linear regression model to calculate the speed based on the color score
+    # Model equation: y = 0.2x - 1
+    predicted_speed = 0.2 * color_score - 1  # Simplified model to control speed based on color score
+    
+    # Ensure the speed is within the robot's operational range
+    predicted_speed = max(-10, min(10, predicted_speed))
+    
+    # Set the robot's motors to the predicted speed
+    left_motor.setVelocity(predicted_speed)
+    right_motor.setVelocity(predicted_speed)

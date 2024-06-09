@@ -1,0 +1,57 @@
+# Dr. Khaled Eskaf
+#Robotics WorkShop - 1
+#06-2024
+
+# Title: Capturing and Analyzing Images with e-puck Robot's Camera
+# Description: This program controls the e-puck robot to capture images using its camera,
+# and prints the RGB color values of the central pixel in the captured image.
+
+# Import necessary modules from the Webots library.
+# Robot is the main class for robot control.
+# Camera is for accessing the robot's camera.
+from controller import Robot, Camera
+
+# Define the simulation time step in milliseconds.
+# This is how often the simulation updates the robot's sensors and actuators.
+TIME_STEP = 64
+
+# Create an instance of the Robot class.
+# This will be our main handle to interact with the robot.
+robot = Robot()
+
+# Get a handle to the camera device on the robot.
+# 'camera' is the name of the camera device specified in the robot's model.
+# If the camera has a different name in your project, change 'camera' accordingly.
+camera = robot.getDevice('camera')
+
+# Enable the camera to start capturing images.
+# The camera will update its image every TIME_STEP milliseconds.
+camera.enable(TIME_STEP)
+
+# Main loop: Execute actions repeatedly until the simulation is stopped.
+while robot.step(TIME_STEP) != -1:
+    # Capture an image from the camera.
+    # The getImage() method returns the latest image captured by the camera.
+    image = camera.getImage()
+    
+    # Retrieve the width and height of the camera image.
+    # These values are set in the Webots world file and can be used to process the image.
+    cameraWidth = camera.getWidth()
+    cameraHeight = camera.getHeight()
+    print(f"Captured an image of size: {cameraWidth}x{cameraHeight}")
+
+    # Calculate the position of the central pixel in the image.
+    # We divide the width and height by 2 to find the center.
+    centerX = cameraWidth // 2
+    centerY = cameraHeight // 2
+    
+    # Get the RGB color values of the central pixel.
+    # imageGetRed, imageGetGreen, and imageGetBlue methods are used to extract
+    # the color components of a pixel at a specified position.
+    red = camera.imageGetRed(image, cameraWidth, centerX, centerY)
+    green = camera.imageGetGreen(image, cameraWidth, centerX, centerY)
+    blue = camera.imageGetBlue(image, cameraWidth, centerX, centerY)
+    
+    # Print the RGB color values of the central pixel.
+    # This can be useful for tasks like color detection or analysis.
+    print(f"Color of the central pixel: R={red}, G={green}, B={blue}")

@@ -1,0 +1,67 @@
+# Dr. Khaled Eskaf
+#Robotics WorkShop - 1
+#06-2024
+-----------------------------------
+# Title: Obstacle Detection and LED Flashing with e-puck Robot
+# Description: This program controls the e-puck robot to move forward, detect obstacles using distance sensors,
+# and flash its LED red and white three times before turning right when an obstacle is detected.
+
+# Import necessary classes for the robot control
+from controller import Robot, Motor, DistanceSensor, LED
+
+# Initialize the Robot instance
+robot = Robot()
+
+# Define the time step of the robot's control loop
+TIME_STEP = 64
+
+# Initialize motor devices
+leftMotor = robot.getDevice('left wheel motor')
+rightMotor = robot.getDevice('right wheel motor')
+
+# Set to infinite position mode
+leftMotor.setPosition(float('inf'))
+rightMotor.setPosition(float('inf'))
+
+# Initial velocity
+leftMotor.setVelocity(0.0)
+rightMotor.setVelocity(0.0)
+
+# Speed constants
+FORWARD_SPEED = 5.0
+
+# Initialize multiple distance sensors by their names
+sensors = ['ps0', 'ps7', 'ps1', 'ps6']
+sensorObjects = []
+
+for sensorName in sensors:
+    sensor = robot.getDevice(sensorName)  # Get the sensor device
+    sensor.enable(TIME_STEP)  # Enable the sensor with the defined time step
+    sensorObjects.append(sensor)  # Append the sensor object to the list
+
+# Initialize LED device (assuming LED 0 is used)
+led = robot.getDevice('led0')
+
+# Function to flash the LED red and white three times
+def flashLED():
+    for _ in range(3):
+        led.set(1)  # Turn LED red
+        robot.step(TIME_STEP)
+        led.set(0)  # Turn LED white
+        robot.step(TIME_STEP)
+
+# Control loop: execute at each simulation step
+while robot.step(TIME_STEP) != -1:
+    # Read sensor values into a list
+    sensorValues = [sensor.getValue() for sensor in sensorObjects]
+
+    # Basic obstacle detection and navigation strategy
+    if sensorValues[0] < 70 or sensorValues[1] < 70:  # ps0 or ps7 detects an obstacle in front
+        # Obstacle detected in front: flash LED and then turn right
+        flashLED()
+        leftMotor.setVelocity(FORWARD_SPEED)
+        rightMotor.setVelocity(-FORWARD_SPEED)
+    else:
+        # No obstacle detected: move forward
+        leftMotor.setVelocity(FORWARD_SPEED)
+        rightMotor.setVelocity(FORWARD_SPEED)
